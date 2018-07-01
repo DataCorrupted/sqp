@@ -1,0 +1,9 @@
+.idea
+*.iml
+*.pyc
+results
+logs
+*.tex
+*.csv
+*.pdf
+summary
