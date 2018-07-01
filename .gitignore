@@ -1,0 +1,13 @@
+cutest_py/libcutest.a
+cutest_py/modules
+sif/*
+!sif/decode.py
+!sif/README.md
+*.pyc
+src/deprecated_rm/
+src/results/
+!src/results/README.md
+src/summary/
+src/logs/
+!src/logs/README.md
+sif_all/
