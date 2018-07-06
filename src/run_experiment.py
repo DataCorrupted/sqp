@@ -99,6 +99,7 @@ def nlp_test(sif_dir_root, problem_name, dust_param, log_dir, result_dir):
     :param result_dir: result directory to store the output
     :return: dust output
     """
+    global total_time
     logger = get_logger(log_dir, '{0}.log'.format(problem_name))
     #logger.info('+' * 200)
     with Cuter(os.path.join(sif_dir_root, problem_name)) as cuter:
@@ -116,11 +117,13 @@ def nlp_test(sif_dir_root, problem_name, dust_param, log_dir, result_dir):
                 [('Summary for problem', dust_output['problem_name']),
                  ('Status', dust_output['status']), ('Iteration Number', dust_output['iter_num']),
                  ('Final objective', dust_output['obj_f']), ('KKT error', dust_output['kkt_error']),
-                 ('Constraint violation', dust_output['constraint_violation']), ('Execute Time (s)', execution_time)])
+                 ('Constraint violation', dust_output['constraint_violation']), 
+                 ('Execute Time (s)', execution_time)])
             print_param_dict(output_print_dict, logger)
             save_output(result_dir, dust_output)
             if dust_output['status'] == 1:
                 success_list.append(problem_name)
+                total_time += execution_time
             else:
                 fail_list.append(problem_name)
         except Exception as e:
@@ -137,9 +140,9 @@ def all_tests(sif_dir_root, log_dir, result_dir):
     :param result_dir: result directory to store the output
     :return:
     """
-    skip_list = ['HS93', 'HS99EXP', 'HS114', 'HS68', 'HS116', 'HS83', 'HS13', 'HS84', 'HS85', 'HS87', 'HS106']
+    skip_list = []
     problem_list = os.listdir(sif_dir_root)
-    for problem_name in sorted(problem_list[:]):
+    for problem_name in sorted(problem_list):
         if problem_name.startswith("HS") and problem_name not in skip_list:
             if problem_name == 'HS19':
                 dust_param = DustParam(max_sub_iter=1e4)
@@ -156,16 +159,19 @@ def all_tests(sif_dir_root, log_dir, result_dir):
 if __name__ == '__main__':
     global success_list
     global fail_list
+    global total_time
+    total_time = 0;
     success_list = []
     fail_list = []
     sif_dir_root = '../sif'
     log_dir = './logs/logs_0'
     result_dir = './results/results_64'
-    dust_param = DustParam()
     all_tests(sif_dir_root, log_dir, result_dir)
 
     success_list = sorted(success_list)
     fail_list = sorted(fail_list)
+    print len(success_list)
+    print len(fail_list)
     total_cnt = len(success_list) + len(fail_list)
     with open(log_dir + '/Failure_note.txt', 'w') as f:
         f.write("Failed cases:\n")
@@ -173,9 +179,10 @@ if __name__ == '__main__':
         f.write("Succeeded cases:\n")
         f.write(str(success_list) + "\n\n")
         f.write("Success rate: ")
-        f.write(str(len(success_list) / (total_cnt + 0.0)))
+        #f.write(str(len(success_list) / (total_cnt + 0.0)))
 
     print len(success_list)
     print total_cnt
     print success_list
     print fail_list
+    print total_time
